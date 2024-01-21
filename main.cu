@@ -1,13 +1,17 @@
 #include <iostream>
 #include <cuda_runtime.h>
 
-const int N = 10;
+const int N = 100;
+
+// 100 * 100 每个block计算100个列向量
 
 // Kernel definition
-__global__ void MatAdd(float A[N][N], float B[N][N], float C[N][N]) {
-    int i = threadIdx.x;
-    int j = threadIdx.y;
-    C[i][j] = A[i][j] + B[i][j];
+__global__ void MatAdd(float A[N][N], float B[N][N], float C[N][N])
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+    if (i < N && j < N)
+        C[i][j] = A[i][j] + B[i][j];
 }
 
 int main() {
@@ -41,8 +45,9 @@ int main() {
     cudaEventRecord(start);
 
     // Kernel invocation with one block of N x N x 1 threads
-    dim3 threadsPerBlock(N, N);
-    MatAdd<<<1, threadsPerBlock>>>(d_A, d_B, d_C);
+    dim3 threadsPerBlock(10, 10);
+    dim3 numBlocks(N / threadsPerBlock.x, N / threadsPerBlock.y);
+    MatAdd<<<numBlocks, threadsPerBlock>>>(d_A, d_B, d_C);
 
     // Record the stop event
     cudaEventRecord(stop);

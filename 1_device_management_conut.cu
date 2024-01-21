@@ -18,6 +18,7 @@ int main() {
         std::cout << "device clockRate: " << deviceProp.clockRate  << std::endl;
         std::cout << "device hostNativeAtomicSupported: " << deviceProp.hostNativeAtomicSupported  << std::endl;
         std::cout << "device l2CacheSize: " << deviceProp.l2CacheSize  << std::endl;
+        std::cout << "maxThreadsPerBlock is " << deviceProp.maxThreadsPerBlock << std::endl;
     }
 }
 
@@ -28,3 +29,4 @@ int main() {
 //device clockRate: 1380000
 //device hostNativeAtomicSupported: 0
 //device l2CacheSize: 6291456
+//maxThreadsPerBlock is 1024
