@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cuda_runtime.h>
+#include <sys/time.h>
 
 #define CHECK(call)                                                            \
 {                                                                              \
@@ -12,6 +13,12 @@
     }                                                                          \
 }                                                                              \
 
+
+double cpuSecond(){
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    return ((double)tp.tv_sec + (double)tp.tv_usec*1e-6);
+}
 
 __global__ void Check(){
     //Block index
@@ -35,6 +42,8 @@ int main(){
     printf("grid.x %d; grid.y %d; grid.z %d; \n", dimGrid.x, dimGrid.y, dimGrid.z);
     printf("block.x %d; block.y %d; block.z %d; \n", dimBlock.x, dimBlock.y, dimBlock.z);
 
+    double iStart = cpuSecond();
     Check<<<dimGrid, dimBlock>>>();
     CHECK(cudaDeviceReset());
+    double iElaps = cpuSecond() - iStart;
 }
