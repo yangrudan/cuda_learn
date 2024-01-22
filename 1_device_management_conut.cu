@@ -30,3 +30,4 @@ int main() {
 //device hostNativeAtomicSupported: 0
 //device l2CacheSize: 6291456
 //maxThreadsPerBlock is 1024
+//multiProcessorCount is 80
