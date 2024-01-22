@@ -1,4 +1,3 @@
-Csub = As[ty][k] * Bs[k][tx];
 #include <iostream>
 #include <cuda_runtime.h>
 
@@ -23,7 +22,7 @@ void Mul(float *A, float *B, int hA, int wA, int wB, float *C){
     size = hA * wB * sizeof (float);
     cudaMalloc((void **)&Cd, size);
 
-    dim3 dimBlock = (1, 1);
+    dim3 dimBlock = (16, 16);
     dim3 dimGrid = (1, 1);
 
     printf("grid.x %d; grid.y %d; grid.z %d; \n", dimGrid.x, dimGrid.y, dimGrid.z);
@@ -45,6 +44,8 @@ __global__ void Muld(float *A, float *B, int wA, int wB, float * C){
     //thread index
     int tx = threadIdx.x;
     int ty = threadIdx.y;
+
+    printf("bx %d| by %d | tx %d | ty %d", bx, by, tx ,ty);
 
     printf("threadIdx:(%d, %d, %d) | blockIdx:(%d, %d, %d) | blockDim: (%d, %d, %d) | gridDim(%d, %d, %d)\n", threadIdx.x, threadIdx.y, threadIdx.z, blockIdx.x, blockIdx.y, blockIdx.z, blockDim.x, blockDim.y, blockDim.z, gridDim.x, gridDim.y, gridDim.z);
 
@@ -76,11 +77,15 @@ __global__ void Muld(float *A, float *B, int wA, int wB, float * C){
 
         __syncthreads();
 
+        int c = wB * BLOCK_SIZE * by + BLOCK_SIZE * bx;
+
         for(int k = 0; k<BLOCK_SIZE; ++k){
-            Csub = As[ty][k] * Bs[k][tx];
+            Csub += As[ty][k] * Bs[k][tx];
+            C[c + wB * ty + k] = Csub;
+            __syncthreads();
         }
 
-        __syncthreads();
+
     }
 
     int c = wB * BLOCK_SIZE * by + BLOCK_SIZE * bx;
