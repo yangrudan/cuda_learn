@@ -1,6 +1,17 @@
 #include <iostream>
 #include <cuda_runtime.h>
 
+#define CHECK(call)                                                            \
+{                                                                              \
+    const cudaError_t error = call;                                            \
+    if (error != cudaSuccess)                                                  \
+    {                                                                          \
+        printf("Error: %s:%d, ", __FILE__, __LINE__);                          \
+        printf("coda: %d, reason: %s\n", error, cudaGetErrorString(error));    \
+        exit(1);                                                               \
+    }                                                                          \
+}                                                                              \
+
 
 __global__ void Check(){
     //Block index
@@ -25,5 +36,5 @@ int main(){
     printf("block.x %d; block.y %d; block.z %d; \n", dimBlock.x, dimBlock.y, dimBlock.z);
 
     Check<<<dimGrid, dimBlock>>>();
-    cudaDeviceReset();
+    CHECK(cudaDeviceReset());
 }
