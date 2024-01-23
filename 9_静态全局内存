@@ -1,5 +1,6 @@
 #include <cuda_runtime.h>
 #include <stdint.h>
+#include <iostream>
 
 __device__ float devData;
 
@@ -23,4 +24,5 @@ int main(){
 
     cudaDeviceReset();
     return EXIT_SUCCESS;
+
 }
