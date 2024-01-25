@@ -1,137 +1,53 @@
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"  // threadIdx
+#include "common.h"
+#include <stdio.h>
+#include <cuda_runtime.h>
 
-#include <stdio.h>    // io
-#include <time.h>     // time_t
-#include <stdlib.h>  // rand
-#include <memory.h>  //memset
+/*
+ * A simple example of nested kernel launches from the GPU. Each thread displays
+ * its information when execution begins, and also diagnostics when the next
+ * lowest nesting layer completes.
+ */
 
-#define CHECK(call)                                   \
-{                                                     \
-    const cudaError_t error_code = call;              \
-    if (error_code != cudaSuccess)                    \
-    {                                                 \
-        printf("CUDA Error:\n");                      \
-        printf("    File:       %s\n", __FILE__);     \
-        printf("    Line:       %d\n", __LINE__);     \
-        printf("    Error code: %d\n", error_code);   \
-        printf("    Error text: %s\n",                \
-            cudaGetErrorString(error_code));          \
-        exit(1);                                      \
-    }                                                 \
-}
-
-
-void checkResult(float* hostRef, float* deviceRef, const int N)
+__global__ void nestedHelloWorld(int const iSize, int iDepth)
 {
-    double eps = 1.0E-8;
-    int match = 1;
-    for (int i = 0; i < N; i++)
-    {
-        if (hostRef[i] - deviceRef[i] > eps)
-        {
-            match = 0;
-            printf("\nArrays do not match\n");
-            printf("host %5.2f gpu %5.2f at current %d\n", hostRef[i], deviceRef[i], i);
-            break;
-        }
-    }
-    if (match)
-        printf("Arrays match!\n");
-}
+    int tid = threadIdx.x;
+    printf("Recursion=%d: Hello World from thread %d block %d\n", iDepth, tid,
+           blockIdx.x);
 
-void initialData(float* p, const int N)
-{
-    //generate different seed from random number
-    time_t t;
-    srand((unsigned int)time(&t));  // 生成种子
+    // condition to stop recursive execution
+    if (iSize == 1) return;
 
-    for (int i = 0; i < N; i++)
+    // reduce block size to half
+    int nthreads = iSize >> 1;
+
+    // thread 0 launches child grid recursively
+    if(tid == 0 && nthreads > 0)
     {
-        p[i] = (float)(rand() & 0xFF) / 10.0f;  // 随机数
+        nestedHelloWorld<<<1, nthreads>>>(nthreads, ++iDepth);
+        printf("-------> nested execution depth: %d\n", iDepth);
     }
 }
 
-
-__device__ void checkIndex(void) {
-    printf("blockIdx: (%d, %d, %d) threadIdx: (%d, %d, %d) \n"
-           "gridDim: (%d, %d, %d) blockDim: (%d, %d, %d) \n ==========================\n",
-           blockIdx.x, blockIdx.y, blockIdx.z,
-           threadIdx.x, threadIdx.y, threadIdx.z,
-           gridDim.x, gridDim.y, gridDim.z,
-           blockDim.x, blockDim.y, blockDim.z
-    );
-}
-
-// cpu
-void sumArraysOnHost(float* a, float* b, float* c, const int N)
+int main(int argc, char **argv)
 {
-    for (int i = 0; i < N; i++)
+    int size = 8;
+    int blocksize = 8;   // initial block size
+    int igrid = 1;
+
+    if(argc > 1)
     {
-        c[i] = a[i] + b[i];
+        igrid = atoi(argv[1]);
+        size = igrid * blocksize;
     }
-}
 
-// 设备端：去掉了循环
-__global__ void sumArraysOnDevice(float* a, float* b, float* c, const int N)
-{
-//    checkIndex();
-    int i = threadIdx.x;
-    c[i] = a[i] + b[i];
-}
+    dim3 block (blocksize, 1);
+    dim3 grid  ((size + block.x - 1) / block.x, 1);
+    printf("%s Execution Configuration: grid %d block %d\n", argv[0], grid.x,
+           block.x);
 
+    nestedHelloWorld<<<grid, block>>>(block.x, 0);
 
-int main(void)
-{
-    int device = 0;
-    cudaSetDevice(device);  // 设置显卡号
-
-    // 1 分配内存
-    // host memory
-    int nElem = 32;
-    size_t nBytes = nElem * sizeof(nElem);
-    float* h_a, * h_b, * hostRef, *gpuRef;
-    h_a = (float*)malloc(nBytes);
-    h_b = (float*)malloc(nBytes);
-    hostRef = (float*)malloc(nBytes); // 主机端求得的结果
-    gpuRef = (float*)malloc(nBytes);  // 设备端拷回的数据
-    // 初始化
-    initialData(h_a, nElem);
-    initialData(h_b, nElem);
-    memset(hostRef, 0, nBytes);
-    memset(hostRef, 0, nBytes);
-
-    // device memory
-    float* d_a, * d_b, * d_c;
-    cudaMalloc((float**)&d_a, nBytes);
-    cudaMalloc((float**)&d_b, nBytes);
-    cudaMalloc((float**)&d_c, nBytes);
-
-    // 2 transfer data from host to device
-    cudaMemcpy(d_a, h_a, nBytes, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_b, h_b, nBytes, cudaMemcpyHostToDevice);
-
-    // 3 在主机端调用设备端核函数
-    dim3 block(nElem);
-    dim3 grid(nElem / block.x);
-    sumArraysOnDevice<<<grid, block>>>(d_a, d_b, d_c, nElem);
-
-    // 4 transfer data from device to host
-    cudaMemcpy(gpuRef, d_c, nBytes, cudaMemcpyDeviceToHost);
-
-    //确认下结果
-    sumArraysOnHost(h_a, h_b, hostRef, nElem);
-    checkResult(hostRef, gpuRef, nElem);
-
-    // 5 释放内存
-    cudaFree(d_a);
-    cudaFree(d_b);
-    cudaFree(d_c);
-
-    free(h_a);
-    free(h_b);
-    free(hostRef);
-    free(gpuRef);
-
+    CHECK(cudaGetLastError());
+    CHECK(cudaDeviceReset());
     return 0;
 }
