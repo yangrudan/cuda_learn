@@ -18,3 +18,19 @@ warnings.filterwarnings("ignore", "\nPyarrow", DeprecationWarning)
 
 plt.ion()
 # interactive mode
+
+landmarks_frame = pd.read_csv('./faces/face_landmarks.csv')
+n = 65  # N是特征点的数量
+img_name = landmarks_frame.iloc[n, 0]
+landmarks = landmarks_frame.iloc[n, 1:].to_numpy()
+landmarks = landmarks.astype('float').reshape(-1, 2)
+print('Image name: {}'.format(img_name))
+print('Landmarks shape: {}'.format(landmarks.shape))
+print('First 4 Landmarks: {}'.format(landmarks[:4]))
+
+# Image name: person-7.jpg
+# Landmarks shape: (68, 2)
+# First 4 Landmarks: [[32. 65.]
+#                     [33. 76.]
+# [34. 86.]
+# [34. 97.]]
