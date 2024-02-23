@@ -279,3 +279,26 @@ float testPerformance(
     return sec;
 }
 
+/*
+ * /home/yangrudan/workspace/demo/cmake-build-debug-remote-host/untitled1
+
+Kernal = sgemm_V3
+Max Error = 0.000046
+M N K =    128    128   1024, Time =   0.00023654   0.00023813   0.00024422 s, AVG Performance =   131.2302 Gflops
+M N K =    192    192   1024, Time =   0.00023757   0.00023838   0.00023859 s, AVG Performance =   294.9548 Gflops
+M N K =    256    256   1024, Time =   0.00023754   0.00023859   0.00023962 s, AVG Performance =   523.9139 Gflops
+M N K =    384    384   1024, Time =   0.00023859   0.00023921   0.00023962 s, AVG Performance =  1175.7628 Gflops
+M N K =    512    512   1024, Time =   0.00023754   0.00023909   0.00024064 s, AVG Performance =  2091.2242 Gflops
+M N K =    768    768   1024, Time =   0.00024163   0.00024227   0.00024269 s, AVG Performance =  4643.5411 Gflops
+M N K =   1024   1024   1024, Time =   0.00024269   0.00024370   0.00024470 s, AVG Performance =  8206.7309 Gflops
+M N K =   1536   1536   1024, Time =   0.00045155   0.00045219   0.00045363 s, AVG Performance =  9951.5251 Gflops
+M N K =   2048   2048   1024, Time =   0.00088880   0.00089026   0.00089190 s, AVG Performance =  8986.1794 Gflops
+M N K =   3072   3072   1024, Time =   0.00176640   0.00177050   0.00177357 s, AVG Performance = 10166.6426 Gflops
+M N K =   4096   4096   1024, Time =   0.00307610   0.00308132   0.00308736 s, AVG Performance = 10385.1649 Gflops
+M N K =   6144   6144   1024, Time =   0.00601088   0.00636037   0.00659251 s, AVG Performance = 11320.0941 Gflops
+M N K =   8192   8192   1024, Time =   0.01041306   0.01042156   0.01042637 s, AVG Performance = 12282.2359 Gflops
+M N K =  12288  12288   1024, Time =   0.02277478   0.02281083   0.02292326 s, AVG Performance = 12625.5825 Gflops
+M N K =  16384  16384   1024, Time =   0.04024423   0.04027413   0.04034867 s, AVG Performance = 12712.8768 Gflops
+
+Process finished with exit code 0
+ */
