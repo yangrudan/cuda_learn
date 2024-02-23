@@ -7,3 +7,4 @@ add_executable(untitled1 main.cu common.h hello_cl.c cl_add.c)
 
 set_target_properties(untitled1 PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON)
+target_link_libraries(untitled1  cublas)

@@ -157,3 +157,24 @@ float testCublasPerformance(const int M, const int N, const int K, const int rep
     return sec;
 }
 
+/*
+ * Kernal = cublas
+Max Error = 0.000198
+M N K =    128    128   1024, Time =   0.00003482   0.00004211   0.00008726 s, AVG Performance =   742.1816 Gflops
+M N K =    192    192   1024, Time =   0.00003990   0.00004105   0.00004400 s, AVG Performance =  1712.7334 Gflops
+M N K =    256    256   1024, Time =   0.00004605   0.00005222   0.00006144 s, AVG Performance =  2393.6822 Gflops
+M N K =    384    384   1024, Time =   0.00006144   0.00006676   0.00007680 s, AVG Performance =  4212.7510 Gflops
+M N K =    512    512   1024, Time =   0.00010342   0.00011469   0.00013824 s, AVG Performance =  4359.4108 Gflops
+M N K =    768    768   1024, Time =   0.00015562   0.00016619   0.00018637 s, AVG Performance =  6769.5395 Gflops
+M N K =   1024   1024   1024, Time =   0.00024986   0.00026655   0.00027853 s, AVG Performance =  7503.3616 Gflops
+M N K =   1536   1536   1024, Time =   0.00047306   0.00048629   0.00050176 s, AVG Performance =  9253.7147 Gflops
+M N K =   2048   2048   1024, Time =   0.00089088   0.00089743   0.00090522 s, AVG Performance =  8914.3402 Gflops
+M N K =   3072   3072   1024, Time =   0.00169062   0.00169758   0.00170598 s, AVG Performance = 10603.3045 Gflops
+M N K =   4096   4096   1024, Time =   0.00290509   0.00292249   0.00292963 s, AVG Performance = 10949.5566 Gflops
+M N K =   6144   6144   1024, Time =   0.00647373   0.00651325   0.00653926 s, AVG Performance = 11054.3871 Gflops
+M N K =   8192   8192   1024, Time =   0.01024205   0.01044910   0.01125171 s, AVG Performance = 12249.8581 Gflops
+M N K =  12288  12288   1024, Time =   0.02238362   0.02248499   0.02280243 s, AVG Performance = 12808.5439 Gflops
+M N K =  16384  16384   1024, Time =   0.03962470   0.03966710   0.03968717 s, AVG Performance = 12907.4231 Gflops
+
+Process finished with exit code 0
+ */
